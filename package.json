@@ -1,0 +1,23 @@
+{
+  "name": "library",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "docs": "vuepress dev docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/melodyPyw/library.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/melodyPyw/library/issues"
+  },
+  "homepage": "https://github.com/melodyPyw/library#readme",
+  "dependencies": {
+    "vuepress": "^1.4.0"
+  }
+}
