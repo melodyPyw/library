@@ -15,6 +15,8 @@ module.exports = {
             {text: '前端框架', link: '/web-frame/'},
             {text: '工程化', link: '/web-project/'},
             {text: 'TypeScript', link: '/ts-study/'},
+            {text: 'NodeJs', link: '/NodeJs/'},
+            {text: 'GitHub', link: 'https://github.com/melodyPyw'}
         ],
       sidebar: 'auto', // 侧边栏配置
       sidebarDepth: 2, // 侧边栏显示2级
