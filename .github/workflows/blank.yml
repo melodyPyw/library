@@ -31,4 +31,4 @@ jobs:
           access-key-id: ${{ secrets.KEY_ID }}
           access-key-secret: ${{ secrets.KEY_SECRET }}
     - name: Deply To OSS
-      run: ossutil cp docs/.vuepress/dist oss://enok-blog/ -rf
+      run: ossutil cp docs/.vuepress/dist oss://pyw-blog/ -rf
