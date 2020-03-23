@@ -25,10 +25,10 @@ jobs:
     - run: npm run docs:build
     # Runs a set of commands using the runners shell
     - name: Deploy
-      uses: manyuanrong/setup-ossutil@master
+      uses: garygrossgarten/github-action-scp@release
       with:
-          endpoint: "oss-cn-hongkong.aliyuncs.com"
-          access-key-id: ${{ secrets.KEY_ID }}
-          access-key-secret: ${{ secrets.KEY_SECRET }}
-    - name: Deply To OSS
-      run: ossutil cp docs/.vuepress/dist oss://pyw-blog/ -rf
+          local: docs/.vuepress/dist
+          remote: /etc/nginx/dist
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.PASSWORD }}
