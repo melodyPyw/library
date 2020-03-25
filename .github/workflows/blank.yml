@@ -22,7 +22,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - run: npm install
-    - run: npm run docs:build
+    - run: npm run build
     # Runs a set of commands using the runners shell
     - name: Deploy
       uses: garygrossgarten/github-action-scp@release
