@@ -9,16 +9,46 @@ module.exports = {
       lineNumbers: false // 代码块显示行号
     },
     themeConfig: {
-        nav:[ // 导航栏配置
-            {text: 'js基础', link: '/js-basics/' },
-            {text: '算法', link: '/leet-code/'},
-            {text: '前端框架', link: '/web-frame/'},
-            {text: '工程化', link: '/web-project/'},
-            {text: 'TypeScript', link: '/ts-study/'},
-            {text: 'NodeJs', link: '/NodeJs/'},
-            {text: 'GitHub', link: 'https://github.com/melodyPyw'}
+      nav:  [ // 导航栏配置
+              {
+                text: 'js基础',
+                link: '/js-basics/'
+              },
+              {
+                text: '算法',
+                link: '/leet-code/'
+              },
+              {
+                text: '前端框架',
+                link: '/web-frame/'
+              },
+              {
+                text: '工程化',
+                link: '/web-project/'
+              },
+              {
+                text: 'TypeScript',
+                link: '/ts-study/'
+              },
+              {
+                text: 'NodeJs',
+                link: '/NodeJs/'
+              },
+              {
+                text: 'GitHub',
+                link: 'https://github.com/melodyPyw'
+              }
         ],
-      sidebar: 'auto', // 侧边栏配置
-      sidebarDepth: 2, // 侧边栏显示2级
+        sidebar: {
+          '/web-project/': [{
+            title: '工程化',
+            collapsable: false,
+            children: [
+              '',
+              'Babel6升级到Babel7.html',
+            ]
+          }]
+        },
+        sidebarDepth: 2, // 侧边栏显示2级
     }
 };
