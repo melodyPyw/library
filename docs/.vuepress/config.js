@@ -48,7 +48,16 @@ module.exports = {
               'Babel6升级到Babel7.html',
               'webpack构建优化.html',
             ]
-          }]
+          }],
+          '/leet-code/': [{
+            title: '算法',
+            collapsable: false,
+            children: [
+              '',
+              '爬楼梯.html',
+              'x 的平方根.html',
+            ]
+          }],
         },
         sidebarDepth: 2, // 侧边栏显示2级
     }
