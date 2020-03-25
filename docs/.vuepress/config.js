@@ -46,6 +46,7 @@ module.exports = {
             children: [
               '',
               'Babel6升级到Babel7.html',
+              'webpack构建优化.html',
             ]
           }]
         },

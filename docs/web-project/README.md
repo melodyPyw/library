@@ -34,7 +34,7 @@
 
 - 通过export default的方式导出模块，通过import from的方式引入模块，如果需要动态引入模块可以通过import()方法引入
 
-- es module的引入方式是静态的，所以不能放在条件判断语句和循环语句中引入
+- es module的引入方式是静态的，所以不能放在条件判断语句和循环语句中引入,
 webpack 性能优化中的tree shaking依赖的就是es module的静态导入，判断如果这个模块中没有使用的代码，然后将这个代码去掉
 
 ##### amd
