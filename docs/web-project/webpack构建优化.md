@@ -2,6 +2,8 @@
 
 ## production自带优化
 
+webpack的配置中model设置为production，就会自带的优化
+
 ### tree shaking
 
 如果是使用ES6 esmodule打包的js文件，会在打包的时候判断项目是否被引用，如果没有被引用的代码，会在打包的时候移除
@@ -122,7 +124,7 @@ commonchunkplugin的缺点：
 polyfill的原理是使用JavaScript来实现浏览器不支持的API，很多浏览器其实已经支持了ES新特性，比如promise，polyfill，在这些浏览器中已经支持的api无需注入到浏览器中。  
 通过分析请求头信息中的 UserAgent信息，可以实现自动加载浏览器所需的 polyfill  
 
-## noParse
+### noParse
 
 Jquery或者bootstrap等，内部不需要依赖其他的模块，所以可以配置noParse，来确定不需要依赖关系的模块
 在module中配置
@@ -131,10 +133,127 @@ Jquery或者bootstrap等，内部不需要依赖其他的模块，所以可以�
 noParse: /phaser/
 ```
 
-## IgnorePlugin
+### IgnorePlugin
 
 忽略所有插件中的语言包，第三方模块，比如moment，element，中的国际化语言包，可以减少项目中的70%大小。使项目从1.9MB到300kb
 
 ```Javascript
 new webpack.IgnorePlugin(/^\.\/locale$/)
 ```
+
+## resolve 优化路径解析
+
+### extensions 文件解析 使用require或import引入文件时可以省略后缀
+
+```Javascript
+resolve: {
+    extensions: ['.js','.css','.vue']
+}
+```
+
+在引入文件时，优先寻找的的文件。如果项目中的vue文件比较多，可以把'.vue'调整到前面，可以减少文件解析的时间。
+
+```Javascript
+resolve: {
+    extensions: ['.vue', '.js','.css']
+}
+```
+
+### alias 别名 简化引用路径
+
+```Javascript
+resolve: {
+    extensions: ['.vue', '.js','.css'],
+    alias: {
+        phaser: path.join(__dirname, '../node_modules/phaser/dist/phaser.js')    //import 'phaser'会找对应的路径
+    }
+}
+```
+
+### modules 第三方包搜索目录
+
+webpack的模块路径查找策略是先在本地的node_modules里面的模块，然后查找上一层目录的node_modules里面的模块，一直查询到全局的模块
+
+```Javascript
+resolve: {
+    extensions: ['.vue', '.js', '.css'],
+    modules: [path.resolve(__dirname, node_modules), myModules]    //myModules为自己写的插件或者模块的目录，如果在node_modules中找不到，就会在myModules里面寻找
+},
+```
+
+如果不指定本目录的node_modules或不写这个字段，会查找全局的模块。使用resolve.modules可以指定模块查找的目录，减少额外的查询时间。
+
+### webpack.ProvidePlugin 注入全局变量
+
+```Javascript
+plugins: [
+    new webpack.ProvidePlugin({
+        Phaser: 'phaser',
+        React: 'react'
+    })
+]
+
+//可以在任意代码中
+
+new Phaser();
+```
+
+```Javascript
+new webpack.ProvidePlugin({
+  Vue: ['vue/dist/vue.esm.js', 'default']
+});
+```
+
+### expose-loade 挂载在window上暴露给外界使用变量
+
+```Javascript
+{
+    test: /phaser/,
+    use: {
+        loader: 'expose-loader', //expose-loader暴露$
+        options: {
+            Phaser: 'phaser'
+        }
+    },
+}
+```
+
+### 多个线程打包 happyPack, thread-loader
+
+多个线程进行同时进行打包，以便提高编译打包的速度
+
+> - 58192ms（未引入happypack）  
+> - 49745ms（引入happypack eslint-loader）  
+> - 46505ms（引入happypack eslint-loader, vue-loader）  
+> - 43358ms（引入happypack eslint-loader, vue-loader, babel-loader）  
+
+### cache-loader开启缓存
+
+```Javascript
+{
+
+    test: /\.js$/,
+    //启用持久化缓存，多进程的模式
+    use: ['cache-loader', 'thread-loader', 'babel-loader']
+}
+```
+
+### source map 模式
+
+通过设置webpack中的devtool可以修改source map的模式，在项目中选择合适的source map模式
+
+|  devtool   | 构建速度  |  重新构建速度   | 生产环境  |  品质(quality)   |
+|  ----      | ----  |  ----  | ----  |  ----  | ----  |
+| (none)     | +++ | +++ | yes | 打包后的代码 |
+| eval       | +++ | +++ | no | 生成后的代码 |
+| cheap-eval-source-map  | + | ++ | no | 转换过的代码（仅限行） |
+| cheap-module-eval-source-map  | o | ++ | no | 原始源代码（仅限行） |
+| eval-source-map               | -- | + | no | 原始源代码 |
+| cheap-source-map              | + | o | yes | 转换过的代码（仅限行） |
+| cheap-module-source-map       | o | - | yes | 原始源代码（仅限行） |
+| inline-cheap-source-map       | + | o | no | 转换过的代码（仅限行） |
+| inline-cheap-module-source-map  | o | - | no | 原始源代码（仅限行） |
+| source-map                    | -- | -- | yes   | 原始源代码 |
+| inline-source-map             | -- | --  | no | 原始源代码 |
+| hidden-source-map             | -- | --  | yes | 原始源代码 |
+| nosources-source-map          | -- | -- | yes | 原始源代码 |
