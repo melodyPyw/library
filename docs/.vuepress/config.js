@@ -54,8 +54,8 @@ module.exports = {
             collapsable: false,
             children: [
               '',
-              '爬楼梯.html',
-              'x 的平方根.html',
+              'palouti.html',
+              'xdepingfanggen.html',
             ]
           }],
         },
