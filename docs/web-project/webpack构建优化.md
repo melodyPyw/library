@@ -28,6 +28,33 @@ webpack的配置中model设置为production，就会自带的优化
 new addassethtmlwebpackplugin({ filename: path.resolve(__dirname, '../dist/vue_dll.js') })
 ```
 
+### 自动dll预编译插件 AutoDllPlugin
+
+因为手动配置Dll预编译的过程太麻烦，所以社区出现了AutoDllPlugin插件
+
+```Javascript
+new AutoDllPlugin({
+    inject: true,
+    context: path.join(__dirname, '../'),
+    filename: '[name]_dll.js',
+    path: './dll',
+    inherit: true,
+    entry: {
+        phaser: ['phaser', 'phaser3-nineslice', path.join(__dirname, 'SpinePlugin3.8.js')],
+        base: ['vue', 'vuex', 'vue-router'],
+        utils: ['rxjs', 'lodash'],
+        vendor: ['axios', 'js-cookie'],
+    },
+    config: {
+        output: {},
+        devtool: false,
+        plugins: [
+            // new UglifyJsPlugin()
+        ],
+    },
+})
+```
+
 ## css优化
 
 ### mini-css-extract-plugin 将css文件提取出来，style-loader会将css样式放在头部style标签里面
@@ -236,6 +263,56 @@ new webpack.ProvidePlugin({
     //启用持久化缓存，多进程的模式
     use: ['cache-loader', 'thread-loader', 'babel-loader']
 }
+```
+
+### 按需加载，element-ui和mintUI
+
+添加babel-plugin-component插件，在babel.config.js添加配置
+
+```Javascript
+plugins: [
+    [
+        'component',
+        {
+            libraryName: 'mint-ui',
+            style: true,
+        },
+        {
+            libraryName: 'element-ui',
+            style: true,
+        },
+    ]
+]
+```
+
+这样就可以实现element-ui和mint-ui的按需加载
+
+### 强缓存 hard-source-webpack-plugin
+
+webpack强缓存，第一次构建将花费正常的时间。第二次构建将显着加快（大概提升90%的构建速度）
+
+```Javascript
+new HardSourceWebpackPlugin({
+    // cacheDirectory是在高速缓存写入。默认情况下，将缓存存储在node_modules下的目录中，因此如
+    // 果清除了node_modules，则缓存也是如此
+    cacheDirectory: '.cache',
+    // Either an absolute path or relative to webpack's options.context.
+    // Sets webpack's recordsPath if not already set.
+    recordsPath: '.cache',
+    // configHash在启动webpack实例时转换webpack配置，并用于cacheDirectory为不同的webpack配
+    // 置构建不同的缓存
+    configHash: function(webpackConfig) {
+        // node-object-hash on npm can be used to build this.
+        return require('node-object-hash')({ sort: false }).hash(webpackConfig);
+    },
+    // 当加载器，插件，其他构建时脚本或其他动态依赖项发生更改时，hard-source需要替换缓存以确保输
+    // 出正确。environmentHash被用来确定这一点。如果散列与先前的构建不同，则将使用新的缓存
+    environmentHash: {
+        root: process.cwd(),
+        directories: [],
+        files: ['package-lock.json', 'yarn.lock'],
+    },
+})
 ```
 
 ### source map 模式
