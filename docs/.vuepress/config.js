@@ -58,6 +58,13 @@ module.exports = {
               'xdepingfanggen.html',
             ]
           }],
+	  '/js-basics/': [{
+            title: '前端基础',
+            collapsable: false,
+            children: [
+              '',
+            ]
+          }],
         },
         sidebarDepth: 2, // 侧边栏显示2级
     }
