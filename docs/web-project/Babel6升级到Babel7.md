@@ -31,7 +31,7 @@ yarn install
 
 ./src/utils/polyfill.js
 Thread Loader (Worker 0)
-[BABEL] /Users/pengyouwei/Desktop/intensive-reading/src/utils/polyfill.js: Cannot find module 'babel-plugin-syntax-jsx' (While processing: "/Users/pengyouwei/Desktop/intensive-reading/node_modules/babel-plugin-transform-vue-jsx/index.js")
+[BABEL] src/utils/polyfill.js: Cannot find module 'babel-plugin-syntax-jsx' (While processing: "node_modules/babel-plugin-transform-vue-jsx/index.js")
     at Generator.next (<anonymous>)
     at Generator.next (<anonymous>)
 ```
@@ -54,14 +54,14 @@ yarn add -D babel-plugin-syntax-jsx
 编译失败 ❌
 
 ./src/utils/polyfill.js
-Module not found: Can't resolve 'babel-polyfill' in '/Users/pengyouwei/Desktop/intensive-reading/src/utils'
+Module not found: Can't resolve 'babel-polyfill' in 'src/utils'
 ```
 
 原因是babel-polyfill已经升级成了@babel/polyfill，需要在项目将项目中的引入换成@babel/polyfill
 
 ## 4. yarn start启动项目之后，编辑器没有任何问题，可以正常访问，这个时候打开教室端H5页面
 
-本来以为没有问题，打开之后发现我的页面怎么蓝屏了😓
+本来以为没有问题，打开之后发现页面蓝屏了
 
 ![avatar](./babel6-update-babel7/classroom.png)
 
@@ -81,10 +81,7 @@ Module not found: Can't resolve 'babel-polyfill' in '/Users/pengyouwei/Desktop/i
 
 ![avatar](./babel6-update-babel7/@babel_plugin-transform-modules-commonjs.png)
 
-打开页面，页面正常显示，没有任何问题。
-![avatar](./babel6-update-babel7/show-babel.png)
-
-本来以为这样事情就解决了，但是重新编译编辑器端之后发现，编译报错。
+打开页面，页面正常显示，没有任何问题，但是重新编译编辑器端之后发现，编译报错。
 ![avatar](./babel6-update-babel7/export-default.png)
 
 原因是ES Module没有经过转换，而在ES Module的规范在export default是必须写的，如果不写需要使用 import * as name from 'name'，这种方式导入。改项目中的代码明显不现实，所以只能把@babel/plugin-transform-modules-commonjs插件加入进来。
@@ -109,7 +106,7 @@ yarn remove babel-core
 
 ![avatar](./babel6-update-babel7/class-properties.png)
 
-打开这个npm包内部，发现没有依赖这个包，这个包也没有Babel配置
+打开这个npm包内部，这个包没有Babel编译，需要单独配置Babel编译，但是在.babellr文件配置的编译规则，在node_modules里面不生效
 
 ![avatar](./babel6-update-babel7/mulu.png)
 ![avatar](./babel6-update-babel7/package.png)
