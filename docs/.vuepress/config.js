@@ -47,7 +47,8 @@ module.exports = {
               '',
               'Babel6升级到Babel7.html',
               'webpack构建优化.html',
-              '错误监控系统日志规范.html'
+              '错误监控系统日志规范.html',
+              '微前端设计.html'
             ]
           }],
           '/leet-code/': [{
