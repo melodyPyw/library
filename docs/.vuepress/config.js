@@ -66,6 +66,14 @@ module.exports = {
               '',
             ]
           }],
+          '/web-frame/': [{
+            title: '前端框架',
+            collapsable: false,
+            children: [
+              '',
+              'vue-basic-study.html'
+            ]
+          }]
         },
         sidebarDepth: 2, // 侧边栏显示2级
     }
