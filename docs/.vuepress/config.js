@@ -59,7 +59,7 @@ module.exports = {
               'xdepingfanggen.html',
             ]
           }],
-	        '/js-basics/': [{
+          '/js-basics/': [{
             title: '前端基础',
             collapsable: false,
             children: [
