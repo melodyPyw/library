@@ -11,7 +11,7 @@ module.exports = {
     themeConfig: {
       nav:  [ // 导航栏配置
               {
-                text: 'js基础',
+                text: '前端基础',
                 link: '/js-basics/'
               },
               {
@@ -59,6 +59,13 @@ module.exports = {
               'xdepingfanggen.html',
             ]
           }],
+          '/web-frame/': [{
+            title: '前端框架',
+            collapsable: false,
+            children: [
+              '',
+            ]
+          }],
           '/js-basics/': [{
             title: '前端基础',
             collapsable: false,
@@ -66,14 +73,6 @@ module.exports = {
               '',
             ]
           }],
-          '/web-frame/': [{
-            title: '前端框架',
-            collapsable: false,
-            children: [
-              '',
-              'vue-basic-study.html'
-            ]
-          }]
         },
         sidebarDepth: 2, // 侧边栏显示2级
     }
