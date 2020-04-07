@@ -65,6 +65,7 @@ module.exports = {
             collapsable: false,
             children: [
               '',
+              'vue高级.html'
             ]
           }],
           '/js-basics/': [{
