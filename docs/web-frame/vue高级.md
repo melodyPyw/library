@@ -332,11 +332,25 @@ window.onhashchange = () => {
 
 使用h5的history.pushState和history.replaceState更改url，会留下操作浏览器的记录，但是不会引起页面的刷新。这两个api的不同之处在于pushState会增加一条新的访问记录，而replaceState则会替换当前的历史记录。
 
-#### pushState
+#### pushState和onpopstate
 
 ```javascript
 window.history.pushState(state, title, url)
 // state需要传递的数据
 // title页面标题，一般为null
 // url需要替换的页面的路由
+ window.onpopstate = (event) => {
+    console.log('数据', event)
+    console.log('路由改变', location.pathname)
+};
 ```
+
+## vue-原理总结
+
+- 组件化 - 数据驱动视图、MVVM
+- 响应式 - Object.definedProperty、深度监听和数组
+- vdom和diff - vnode结构、h渲染函数、patch函数
+- 模板编译 - with语法，render函数、render执行生成vnode
+- 渲染过程 - 首次渲染过程、更新过程、异步渲染、keep-alive、生命周期
+- 前端路由 - hash路由、H5 history 、 H5 history需要后端支持feedback
+
