@@ -66,7 +66,9 @@ module.exports = {
             children: [
               '',
               'vue高级.html',
-              'vue常见面试题.html'
+              'vue常见面试题.html',
+              'vue3初探.html',
+              'react基础.html'
             ]
           }],
           '/js-basics/': [{
