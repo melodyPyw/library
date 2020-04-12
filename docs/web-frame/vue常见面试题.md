@@ -317,4 +317,3 @@ methodsToPatch.forEach(function (method) {
 - 使用vue-loader在开发环境进行模板预编译
 - 图片懒加载(前端通用性能优化)
 - C端应用使用SSR
-
