@@ -38,17 +38,14 @@ class App extends React.Component {
     // React.createRef()形式绑定ref
     this.radioRef = React.createRef();
   }
-
   //函数形式绑定ref
   funRef = (ref) => this.radio = ref
-
   handleClick = () => {
     //字符串形式绑定ref
     console.log(this.refs.input.value);
     console.log(this.radio.checked);
     console.log(this.radioRef.current.checked)
   }
-
   render() {
     const { value, flag } = this.state;
     return (
@@ -123,17 +120,14 @@ export default class App extends React.Component {
   state = {
     msg: 'hello world'
   }
-
   static childContextTypes = {
     msg: propsCheck.string.isRequired
   }
-
   getChildContext() {
     return {
       msg: this.state.msg
     }
   }
-
   render() {
     return (
       <div>
@@ -194,7 +188,6 @@ export default class App extends React.Component {
   state = {
     msg: 'hello world'
   }
-
   render() {
     return (
       <div>
@@ -249,4 +242,81 @@ export default class ProtalsModal extends React.Component {
         )
     }
 }
+```
+
+### 异步加载组件
+
+```javascript
+import React from 'react'
+
+const LazyComponent = React.lazy(() => import('./LazyComponent'));
+
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <LazyComponent></LazyComponent>
+        </React.Suspense>
+      </div>
+    )
+  }
+}
+```
+
+使用React.lazy加载组件，这个api接受一个函数参数，这个函数必须返回一个JSX组件。
+
+React.Suspense是一个虚拟组件，可以放在Lazy组件上方的任意位置，并且可以在Lazy组件没加载出来之前，先显示fallback的内容。
+
+### React中的性能优化shouldComponentUpdate
+
+必须掌握，面试的时候经常会问。
+
+在react中，父组件更新，所有子组件无条件更新。
+
+```javascript
+// 父组件
+import React from 'react'
+import UpdateComponent from './updateComponent'
+
+class App extends React.Component {
+  state = {
+    value: ''
+  }
+  componentDidMount() {
+    this.setState({
+        value: 'hello world'
+    })
+  }
+  componentDidUpdate() {
+    console.log('father_update')
+  }
+  render() {
+    return (
+      <div>
+          <p>{this.state.value}</p>
+          <UpdateComponent></UpdateComponent>
+      </div>
+    )
+  }
+}
+
+// 子组件
+export default class UpdateComponent extends React.Component {
+    state = {
+        count: 0
+    }
+    componentDidUpdate() {
+        console.log('children_update')
+    }
+    render() {
+        return (
+            <div>{this.state.count}</div>
+        )
+    }
+}
+
+//打印结果
+// children_update
+// father_update
 ```
