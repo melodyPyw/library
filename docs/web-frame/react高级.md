@@ -77,7 +77,7 @@ class App extends React.Component {
 
 ### Protals 传送门
 
-组件的渲染形式都是按照初始的层级嵌套渲染的，但是Protals可以让组件渲染到父组件之外的节点，在Modal弹窗、页面右侧弹窗等使用很常见。
+组件的渲染形式都是按照初始的层级嵌套渲染的，但是Protals可以让组件渲染到父组件之外的节点，在Modal弹窗组件、页面右侧弹窗组件等使用很常见。
 
 ```javascript
 //父组件
@@ -109,3 +109,144 @@ export default class ProtalsModal extends React.Component {
 
 ### context上下文
 
+>Context 通过组件树提供了一个传递数据的方法，从而避免了在每一个层级手动的传递 props 属性
+
+老的使用方式(还可以使用，但是不推荐)
+
+```javascript
+// 父组件
+import React from 'react';
+import propsCheck from 'prop-types' 
+import ContextDemo from './contextDemo'
+
+export default class App extends React.Component {
+  state = {
+    msg: 'hello world'
+  }
+
+  static childContextTypes = {
+    msg: propsCheck.string.isRequired
+  }
+
+  getChildContext() {
+    return {
+      msg: this.state.msg
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        <p>createPortals</p>
+        <ContextDemo></ContextDemo>
+      </div>
+    )
+  }
+}
+
+// 中间业务代码
+import React from 'react'
+import ProtalsModal from './protalsModal'
+
+export default () => {
+    return (
+        <div>
+            <ProtalsModal />
+        </div>
+    )
+}
+
+// 接受使用context的组件
+import React from 'react'
+import ReactDom from 'react-dom'
+import propsCheck from 'prop-types'
+
+export default class ProtalsModal extends React.Component {
+    constructor(props, context) {
+        super(props)
+        this.state = {
+            msg: context.msg
+        }
+    }
+    static contextTypes = {
+        msg: propsCheck.string.isRequired
+    }
+    render() {
+        return ReactDom.createPortal(
+            <div className='modal'>{this.state.msg}</div>,
+            document.querySelector('#root')
+        )
+    }
+}
+```
+
+老的context定义方式，需要在组件里面写一个getChildContext的钩子，然后需要在父组件和需要使用context的组件，定义context的类型。
+
+16.3版本之后的context使用方式
+
+```javascript
+//父组件
+import React from 'react'
+import ContextDemo from './contextDemo'
+import Context from './context'
+
+export default class App extends React.Component {
+  state = {
+    msg: 'hello world'
+  }
+
+  render() {
+    return (
+      <div>
+        <Context.Provider value={this.state.msg}>
+          <p>createPortals</p>
+          <ContextDemo></ContextDemo>
+        </Context.Provider>
+      </div>
+    )
+  }
+}
+
+// context.js的内容
+import React from 'react'
+
+export default React.createContext('')
+
+// 使用contxet的组件，需要定义一个静态变量contextType
+import React from 'react';
+import ReactDom from 'react-dom'
+import Context from './context'
+import './App.css'
+
+export default class ProtalsModal extends React.Component {
+    static contextType = Context
+
+    render() {
+        return ReactDom.createPortal(
+            <div className='modal'>{this.context}</div>,
+            document.querySelector('#root')
+        )
+    }
+}
+
+//或者使用Consumer，这两种方式是等价的，Context.Consumer更多使用在函数式组件里面
+import React from 'react';
+import ReactDom from 'react-dom'
+import Context from './context'
+import './App.css'
+
+export default class ProtalsModal extends React.Component {
+    render() {
+        return ReactDom.createPortal(
+            <Context.Consumer>
+                {
+                    (context) => {
+                        return <div className='modal'>{context}</div>
+                    }
+                }
+            </Context.Consumer>,
+            document.querySelector('#root')
+        )
+    }
+}
+```
