@@ -316,7 +316,198 @@ export default class UpdateComponent extends React.Component {
     }
 }
 
-//打印结果
+// 打印日志
 // children_update
 // father_update
+```
+
+如果要在子组件禁止更新，可以使用shouComponentUpdate()。shouComponentUpdate返回false将会禁止本次更新，shouComponentUpdate默认返回true。
+
+```javascript
+// 子组件
+export default class UpdateComponent extends React.Component {
+    state = {
+        count: 0
+    }
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        if (this.state.count !== nextState.count) {
+            return true
+        }
+        return false
+    }
+    componentDidUpdate() {
+        console.log('children_update')
+    }
+    render() {
+        return (
+            <div>{this.state.count}</div>
+        )
+    }
+}
+// 打印日志
+// father_update  只有父组件触发了一次更新
+```
+
+### PureComponent 和 React.memo
+
+PureComponent = ClassComponent + shouldComponentUpdate浅比较
+
+React.memo = FunctionComponent + shouldComponentUpdate
+
+大部分情况下PureComponent和React.memo已经够用了，不需要手动去进行深度比较，特别是在UI组件里面
+
+```javascript
+// PureComponent使用方法
+export default class App extends React.PureComponent {
+    render() {
+        return (
+            <div>hello world</div>
+        )
+    }
+}
+
+// React.memo使用方法
+export default React.memo((props) => {
+    return (
+        <div>{props.msg}</div>
+    )
+})
+```
+
+memo接受两个参数，第一个参数是要渲染的组件，第二个参数是propsAreEqual函数，返回false则会重新渲染，放回true不会重新渲染，和shouldComponentUpdate正好相反
+
+```javascript
+export default React.memo((props) => {
+    return (
+        <div>{props.msg}</div>
+    )
+}, (prevProps, nextProps) => {
+    return prevProps.msg === nextProps.msg;
+})
+//上面的memo代码等价于
+export default class Memo extends React.Component {
+    shouldComponentUpdate(prevProps) {
+        return prevProps.msg !== this.props.msg;
+    }
+    render() {
+        return (
+            <div>{this.props.msg}</div>
+        )
+    }
+}
+```
+
+### ImmutableJS 和不可变值
+
+基于共享数据，速度好，不可变值。
+
+> Immutable不可变值: 指的是数据一旦创建，就不能再被更改，任何修改或添加删除操作都会返回一个新的 Immutable 对象。
+
+常用API总结
+
+```javascript
+import immutable from 'immutable'
+
+//Map()  原生object转Map对象 (只会转换第一层，注意和fromJS区别)
+immutable.Map({name:'danny', age:18})
+
+//List()  原生array转List对象 (只会转换第一层，注意和fromJS区别)
+immutable.List([1,2,3,4,5])
+
+//fromJS()   原生js转immutable对象  (深度转换，会将内部嵌套的对象和数组全部转成immutable)
+immutable.fromJS([1,2,3,4,5])    //将原生array  --> List
+immutable.fromJS({name:'danny', age:18})   //将原生object  --> Map
+
+//toJS()  immutable对象转原生js  (深度转换，会将内部嵌套的Map和List全部转换成原生js)
+immutableData.toJS();
+
+//查看List或者map大小  
+immutableData.size
+immutableData.count()
+
+// is()   判断两个immutable对象是否相等
+immutable.is(imA, imB);
+
+//merge()  对象合并
+var imA = immutable.fromJS({a: 1, b: 2});
+var imA = immutable.fromJS({c: 3});
+var imC = imA.merge(imB);
+console.log(imC.toJS())  //{a:1,b:2,c:3}
+
+//增删改查（所有操作都会返回新的值，不会修改原来值）
+var immutableData = immutable.fromJS({
+    a: 1,
+    b: 2，
+    c: {
+        d: 3
+    }
+});
+var data1 = immutableData.get('a') //  data1 = 1  
+var data2 = immutableData.getIn(['c', 'd']) // data2 = 3   getIn用于深层结构访问
+var data3 = immutableData.set('a' , 2);   // data3中的 a = 2
+var data4 = immutableData.setIn(['c', 'd'], 4);   //data4中的 d = 4
+var data5 = immutableData.update('a',function(x){return x+4})   //data5中的 a = 5
+var data6 = immutableData.updateIn(['c', 'd'],function(x){return x+4})   //data6中的 d = 7
+var data7 = immutableData.delete('a')   //data7中的 a 不存在
+var data8 = immutableData.deleteIn(['c', 'd'])   //data8中的 d 不存在
+```
+
+### React性能优化小结
+
+1. state使用不可变的数据
+2. shouldCompoentUpdate
+3. PureComponent和memo
+4. ImmutableJS
+5. state的层级不宜过深
+6. 按需加载
+
+### 高阶组件
+
+高阶组件不是一个API，而是一种模式，类似于工厂模式或者装饰器模式。
+
+传入一个组件，返回一个新的组件。
+
+```javascript
+const HOCFactory = (Component) => {
+  return class HOC extends React.component {
+    render() {
+      return <Component {...this.props}>
+    }
+  }
+}
+```
+
+react-redux就是一个高阶组件
+
+### render props
+
+```javascript
+// 最外层组件
+import RenderProps from './RenderProps'
+
+export default class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <RenderProps render={(msg) => <div>{msg}</div>}></RenderProps>
+      </div>
+    )
+  }
+}
+
+// RenderProps组件
+export default class RenderProps extends React.Component {
+    state = {
+        msg: 'hello world'
+    }
+    render() {
+        return (
+            <div>
+                {
+                    this.props.render(this.state.msg)
+                }
+            </div>
+        )
+    }
+}
 ```
