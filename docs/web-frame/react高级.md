@@ -511,3 +511,143 @@ export default class RenderProps extends React.Component {
     }
 }
 ```
+
+### redux的使用
+
+#### 单项数据流
+
+![avatar](./react-assets/redux.jpg)
+
+#### 使用react-redux传递store
+
+React-Redux 将组件分成两大类：UI 组件（presentational component）和容器组件（container component）
+
+##### UI组件
+
+- 只负责UI的呈现，不带有业务逻辑
+- 没有状态，不使用this.state，数据全部通过this.props渲染
+
+##### 容器组件
+
+- 负责管理数据和业务逻辑
+- 使用 Redux 的 API
+
+##### Provider 和connect
+
+react-redux只有两个APi，Provider和connect，Provider负责挂载数据，connect负责使用数据
+
+```javascript
+// 将store挂载在最外层，允许所有子组件通过connect拿到数据
+import { Provider } from 'react-redux'
+import store from './store'
+import App from './components/App'
+
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
+
+//connect
+class App extends Component {
+  render() {
+    const { count, handleClick } = this.props
+    return (
+      <div>
+        <span>{value}</span>
+        <button onClick={handleClick}> +1 </button>
+      </div>
+    )
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
+
+//  将state映射到组件的props
+function mapStateToProps(state) {
+  return {
+    count: state.count
+  }
+}
+
+//  将action映射到组件的props
+function mapDispatchToProps(dispatch) {
+  return {
+    handleClick: () => dispatch({type: 'INCREASE_COUNT'})
+  }
+}
+
+// Reducer   基于原有state根据action得到新的state
+function reducer(state = { count: 0 }, action) {
+  const count = state.count
+  switch (action.type) {
+    case 'INCREASE_COUNT':
+      return { count: count + 1 }
+    default:
+      return state
+  }
+}
+```
+
+#### 异步action
+
+redux只支持同步的action，如果要使用异步action，需要引入第三方中间件
+
+```javascript
+// 安装redux-thunk插件
+import { createStore, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
+import reducers from './reducer'
+
+const store = createStore(reducers, applyMiddleware(thunk))
+
+// 同步action
+export const handleClick = (count) => {
+  return {
+    type: 'INCREASE_COUNT',
+    count
+  }
+}
+
+// 异步action
+export const handleClickSync = (count) => {
+  return (dispatch) => {
+    fetch(url).then(res => {
+      dispatch({
+        type: 'INCREASE_COUNT',
+        count: count + res.count
+      })
+    })
+  }
+}
+```
+
+#### redux中间件原理
+
+redux-thunk源码
+
+```javascript
+// 外层
+function createThunkMiddleware (extraArgument){
+     // 第一层
+    return function ({dispatch, getState}){
+       // 第二层
+        return function (next){
+            // 第三层
+            return function (action){
+                if (typeof action === 'function'){
+                    return action(dispatch, getState, extraArgument);
+                }
+                return next(action);
+            };
+        }
+    }
+}
+
+let thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+export default thunk;
+```
+
