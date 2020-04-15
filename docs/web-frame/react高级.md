@@ -630,11 +630,12 @@ redux-thunk源码
 ```javascript
 // 外层
 function createThunkMiddleware (extraArgument){
-     // 第一层
+     // 第一层，也是添加到applyMiddleware参数中的函数
     return function ({dispatch, getState}){
-       // 第二层
+       // 第二层 next 等于compose(...chain)(store.dispatch)中的store.dispatch
+       // 之所以使用这个，是因为redux可能有多个，之前的插件可能处理过dispatch
         return function (next){
-            // 第三层
+            // 第三层，接受action，判断action是函数就执行，不是函数就使用next触发reducer
             return function (action){
                 if (typeof action === 'function'){
                     return action(dispatch, getState, extraArgument);
@@ -646,8 +647,137 @@ function createThunkMiddleware (extraArgument){
 }
 
 let thunk = createThunkMiddleware();
+//这个可以先不看，withExtraArgument允许给返回的函数传入额外的参数，withExtraArgument的使用方法可以看下面
 thunk.withExtraArgument = createThunkMiddleware;
 
 export default thunk;
 ```
 
+applyMiddleware 源码
+
+```javascript
+export default function applyMiddleware(...middlewares) {
+  return createStore => (...args) => {
+    const store = createStore(...args)
+    let dispatch = () => {
+      throw new Error(
+        'Dispatching while constructing your middleware is not allowed. ' +
+          'Other middleware would not be applied to this dispatch.'
+      )
+    }
+
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (...args) => dispatch(...args)
+    }
+    const chain = middlewares.map(middleware => middleware(middlewareAPI))
+    dispatch = compose(...chain)(store.dispatch)
+
+    return {
+      ...store,
+      dispatch
+    }
+  }
+}
+
+// compose源码
+export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    return arg => arg
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0]
+  }
+  // 洋葱圈式调用
+  return funcs.reduce((a, b) => (...args) => a(b(...args)))
+}
+
+// 理解compose
+// function f
+const f = (arg) => `函数f(${arg})` 
+
+// function g
+const g = (arg) => `函数g(${arg})`
+
+// function h 最后一个函数可以接受多个参数
+const h = (...arg) => `函数h(${arg.join('_')})`
+
+console.log(compose(f,g,h)('a', 'b', 'c'))
+compose(fn1, fn2, fn3) (...args) = > fn1(fn2(fn3(...args)))
+```
+
+withExtraArgument的使用方法(不重要)
+
+```javascript
+// 创建store的时候，applyMiddleware不传递redux，传递thunk.withExtraArgument的返回值
+import { createStore, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
+import reducer from './reducer'
+
+export default createStore(reducer, applyMiddleware(thunk.withExtraArgument(2)))
+
+// 使用, action的第三个参数extraArgument就是withExtraArgument注入的数据
+export const handleClick = () => {
+    return (dispatch, getState, extraArgument) => {
+        dispatch({type: 'setCount', count: getState().count + extraArgument})
+    }
+}
+```
+
+### react-router使用
+
+路由模式: hash模式(一般用在后台管理系统)、history模式(需要server端支持，返回feedback)
+异步加载，动态传参
+
+```javascript
+// 路由管理页面
+import React from 'react'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import Home from './Home'
+import NotFound from './NotFound'
+const User = React.lazy(() => import('./User'));
+class App extends React.Component {
+  render() {
+    return (
+        <Router>
+          <React.Suspense fallback={<div>loading...</div>}>
+            <Switch>
+              <Route exact path="/">
+                <Home />
+              </Route>
+              {/* 异步加载，动态传参 */}
+              <Route path="/user/:id" component={User} />
+              <Route path="*">
+                <NotFound />
+              </Route>
+            </Switch>
+          </React.Suspense>
+        </Router>
+    )
+  }
+}
+//home页面
+import React from 'react'
+import { Link } from 'react-router-dom'
+export default () => {
+    return (
+        <div>
+            <div>home</div>
+            <Link to='/user/123'>user</Link>
+        </div>
+    )
+}
+//user页面
+import React from 'react'
+import { Link, useParams } from 'react-router-dom'
+export default () => {
+    console.log(useParams()) //获取路由动态参数{id: "123"}
+    return (
+        <div>
+            <div>user</div>
+            <Link to='/'>home</Link>
+        </div>
+    )
+}
+```
