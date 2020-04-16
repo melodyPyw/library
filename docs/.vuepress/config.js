@@ -69,7 +69,8 @@ module.exports = {
               'vue常见面试题.html',
               'vue3初探.html',
               'react基础.html',
-              'react高级.html'
+              'react高级.html',
+              'react原理总结.html'
             ]
           }],
           '/js-basics/': [{
